@@ -154,5 +154,89 @@ namespace Rhythm.Properties {
                 this["PointerSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
+        public global::System.Drawing.Color TextColor {
+            get {
+                return ((global::System.Drawing.Color)(this["TextColor"]));
+            }
+            set {
+                this["TextColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Arial, 14.25pt")]
+        public global::System.Drawing.Font TextFont {
+            get {
+                return ((global::System.Drawing.Font)(this["TextFont"]));
+            }
+            set {
+                this["TextFont"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public int ExerciseCount {
+            get {
+                return ((int)(this["ExerciseCount"]));
+            }
+            set {
+                this["ExerciseCount"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("6")]
+        public int ExerciseInterval {
+            get {
+                return ((int)(this["ExerciseInterval"]));
+            }
+            set {
+                this["ExerciseInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int ExerciseFirst {
+            get {
+                return ((int)(this["ExerciseFirst"]));
+            }
+            set {
+                this["ExerciseFirst"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int BorderWidth {
+            get {
+                return ((int)(this["BorderWidth"]));
+            }
+            set {
+                this["BorderWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Yellow")]
+        public global::System.Drawing.Color ComplementaryColor {
+            get {
+                return ((global::System.Drawing.Color)(this["ComplementaryColor"]));
+            }
+            set {
+                this["ComplementaryColor"] = value;
+            }
+        }
     }
 }

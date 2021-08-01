@@ -21,6 +21,15 @@ namespace Rhythm
         [DisplayName("Количество серий"), Category(CAT_TIMINGS)]
         public int SeriesCount { get; set; } = Properties.Settings.Default.SeriesCount;
 
+        [DisplayName("Интервал между упражнениями, сек"), Category(CAT_TIMINGS)]
+        public int ExerciseInterval { get; set; } = Properties.Settings.Default.ExerciseInterval;
+
+        [DisplayName("Количество упражнений"), Category(CAT_TIMINGS)]
+        public int ExerciseCount { get; set; } = Properties.Settings.Default.ExerciseCount;
+
+        [DisplayName("Номер первого упражнения"), Category(CAT_TIMINGS)]
+        public int ExerciseFirst { get; set; } = Properties.Settings.Default.ExerciseFirst;
+
         [DisplayName("Начальная задержка, сек"), Category(CAT_TIMINGS)]
         public int StartDelay { get; set; } = Properties.Settings.Default.StartDelay;
 
@@ -37,11 +46,23 @@ namespace Rhythm
         [DisplayName("Цвет прямоугольников"), Category(CAT_APPEARANCE)]
         public Color ForegroundColor { get; set; } = Properties.Settings.Default.ForegroundColor;
 
+        [DisplayName("Дополнительный цвет"), Category(CAT_APPEARANCE)]
+        public Color ComplementaryColor { get; set; } = Properties.Settings.Default.ComplementaryColor;
+
+        [DisplayName("Цвет текста"), Category(CAT_APPEARANCE)]
+        public Color TextColor { get; set; } = Properties.Settings.Default.TextColor;
+
+        [DisplayName("Шрифт текста"), Category(CAT_APPEARANCE)]
+        public Font TextFont { get; set; } = Properties.Settings.Default.TextFont;
+
         [DisplayName("Цвет указателя"), Category(CAT_APPEARANCE)]
         public Color PointerColor { get; set; } = Properties.Settings.Default.PointerColor;
 
         [DisplayName("Размер указателя, px"), Category(CAT_APPEARANCE)]
         public int PointerSize { get; set; } = Properties.Settings.Default.PointerSize;
+
+        [DisplayName("Размер рамки, px"), Category(CAT_APPEARANCE)]
+        public int BorderWidth { get; set; } = Properties.Settings.Default.BorderWidth;
 
         public void Save()
         {
@@ -55,8 +76,14 @@ namespace Rhythm
             settings.VisibleRangeBefore = VisibleRangeBefore;
             settings.BackgroundColor = BackgroundColor;
             settings.ForegroundColor = ForegroundColor;
+            settings.ComplementaryColor = ComplementaryColor;
             settings.PointerColor = PointerColor;
             settings.PointerSize = PointerSize;
+            settings.TextColor = TextColor;
+            settings.TextFont = TextFont;
+            settings.ExerciseCount = ExerciseCount;
+            settings.ExerciseInterval = ExerciseInterval;
+            settings.BorderWidth = BorderWidth;
             settings.Save();
         }
 

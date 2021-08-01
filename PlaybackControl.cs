@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rhythm.TimeModel;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -6,8 +7,9 @@ namespace Rhythm
 {
     public sealed class PlaybackControl : Control
     {
-        private int pulseCount, seriesCount;
-        private double visibleRange, timeShift, startDelay, seriesLength, seriesInterval, pulseLength, timePerPixel, elapsedTime;
+        private double visibleRange, timeShift, timePerPixel, elapsedTime;
+        private DrawContext drawContext;
+        private IEventContainer timeModel;
         private int ybase, yheight;
         private int xbase;
         private ViewModel _config;
@@ -49,16 +51,12 @@ namespace Rhythm
 
         private void Reconfigure()
         {
-            this.pulseCount = Config.Length;
-            this.pulseLength = TimeSpan.FromMinutes(1.0 / Config.Frequency).TotalMilliseconds;
-
-            this.seriesCount = Config.SeriesCount;
-            this.seriesInterval = TimeSpan.FromSeconds(Config.SeriesInterval).TotalMilliseconds;
-            this.seriesLength = pulseLength * pulseCount + seriesInterval;
-
-            this.startDelay = TimeSpan.FromSeconds(Config.StartDelay).TotalMilliseconds;
             this.visibleRange = (Config.VisibleRangeAfter + Config.VisibleRangeBefore).TotalMilliseconds;
             this.timeShift = Config.VisibleRangeBefore.TotalMilliseconds;
+
+            drawContext?.Dispose();
+            drawContext = new DrawContext(Config);
+            timeModel = TimeModelFactory.Create(drawContext);
 
             RecalculateWidth();
             Invalidate();
@@ -91,78 +89,68 @@ namespace Rhythm
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            using var brush = new SolidBrush(Config.BackgroundColor);
-
-            e.Graphics.FillRectangle(brush, 0, 0, Width, ybase);
-            e.Graphics.FillRectangle(brush, 0, ybase + yheight, Width, Height);
+            e.Graphics.FillRectangle(drawContext.BackgroundBrush, 0, 0, Width, ybase);
+            e.Graphics.FillRectangle(drawContext.BackgroundBrush, 0, ybase + yheight, Width, Height);
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
 
-            if (e.ClipRectangle.Left <= xbase + Config.PointerSize && xbase <= e.ClipRectangle.Right)
+            var clipRect = e.ClipRectangle;
+
+            if (clipRect.Left <= xbase + Config.PointerSize && xbase <= clipRect.Right)
             {
-                using var brush = new SolidBrush(Config.PointerColor);
-                e.Graphics.FillRectangle(brush, xbase, 0, Config.PointerSize, Height);
+                e.Graphics.FillRectangle(drawContext.PointerBrush, xbase, 0, Config.PointerSize, Height);
             }
 
-            if (e.ClipRectangle.Top <= ybase + yheight && ybase <= e.ClipRectangle.Bottom)
+            if (clipRect.Top <= ybase + yheight && ybase <= clipRect.Bottom)
             {
-                using var foreBrush = new SolidBrush(Config.ForegroundColor);
-                using var backBrush = new SolidBrush(Config.BackgroundColor);
+                var elapsedPx = (int)(elapsedTime / timePerPixel);
+                var time = (elapsedPx - xbase + clipRect.Left) * timePerPixel;
+                var lastEvent = int.MinValue;
 
-                for (int x = e.ClipRectangle.Left; x < e.ClipRectangle.Right;)
+                if (elapsedPx < xbase - Config.PointerSize)
                 {
-                    var (active, nextEvent) = GetEventData(x);
-                    if (x < xbase)
+                    e.Graphics.FillRectangle(drawContext.BackgroundBrush, clipRect.Left, ybase, xbase - elapsedPx - Config.PointerSize, yheight);
+                }
+
+                foreach (var ev in timeModel.GetEvents(0, time))
+                {
+                    var left = xbase + (int)((ev.Start) / timePerPixel) - elapsedPx;
+                    var right = xbase + (int)((ev.Start + ev.Duration) / timePerPixel) - elapsedPx;
+                    if (left < lastEvent) left = lastEvent;
+                    lastEvent = right + 1;
+
+                    if (left > clipRect.Right)
+                        break;
+
+                    var eventRect = Rectangle.FromLTRB(left: left, right: right, top: ybase, bottom: ybase + yheight);
+                    var eventClipRect = Rectangle.Intersect(eventRect, clipRect);
+
+                    e.Graphics.SetClip(eventClipRect);
+                    ev.Draw(e.Graphics, eventRect);
+                    
+                    if (eventClipRect.Left <= xbase + Config.PointerSize && xbase <= eventClipRect.Right)
                     {
-                        if (nextEvent > xbase - x)
-                            nextEvent = xbase - x;
+                        e.Graphics.FillRectangle(drawContext.PointerBrush, xbase, 0, Config.PointerSize, Height);
                     }
-                    else
-                    {
-                        if (nextEvent > e.ClipRectangle.Right - x)
-                            nextEvent = e.ClipRectangle.Right;
-                    }
+                }
 
-                    e.Graphics.FillRectangle(active ? foreBrush : backBrush, x, ybase, nextEvent, yheight);
+                if (lastEvent == int.MinValue)
+                    lastEvent = clipRect.Left;
 
-                    x += nextEvent + 1;
-
-                    if (x >= xbase && x <= xbase + Config.PointerSize)
-                        x = xbase + Config.PointerSize + 1;
+                if (lastEvent <= clipRect.Right)
+                {
+                    e.Graphics.ResetClip();
+                    e.Graphics.FillRectangle(drawContext.BackgroundBrush, lastEvent, ybase, clipRect.Right - lastEvent + 1, yheight);
                 }
             }
         }
 
         private void Invalidate2() => Invalidate(new Rectangle(0, ybase, Width, yheight));
 
-        private (bool active, int nextEvent) GetEventData(int x)
-        {
-            var time = elapsedTime - timeShift + x * timePerPixel;
-
-            time -= startDelay;
-            if (time < 0)
-                return (false, -(int)(time / timePerPixel));
-
-            int seriesNo = (int)Math.Floor(time / seriesLength);
-            time %= seriesLength;
-            if (seriesNo >= seriesCount)
-                return (false, int.MaxValue / 2);
-
-            int pulseNo = (int)Math.Floor(time / pulseLength);
-            if (pulseNo >= pulseCount)
-                return (false, (int)((seriesLength - time) / timePerPixel));
-
-            time %= pulseLength;
-            if (time < pulseLength * 0.5)
-                return (true, (int)((pulseLength * 0.5 - time) / timePerPixel));
-            else
-                return (false, (int)((pulseLength - time) / timePerPixel));
-        }
-
-        public bool IsEnded => elapsedTime > startDelay + seriesLength * seriesCount - seriesInterval - pulseLength * 0.5;
+        public bool IsEnded => elapsedTime > timeModel.Duration;
 
         private void Config_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) => Reconfigure();
     }
