@@ -42,7 +42,7 @@ namespace Rhythm.TimeModel
         public LabelContainer(DrawContext ctx, double duration, string label)
         {
             this.duration = duration;
-            eventFactory = EventWithLabel.Factory(ctx.TextFont, ctx.BackgroundBrush, ctx.TextBrush, label);
+            eventFactory = EventWithLabel.Factory(ctx.TextFont, ctx.TextBrush, label);
         }
 
         public double Duration => duration;
@@ -61,7 +61,7 @@ namespace Rhythm.TimeModel
         public EmptyContainer(DrawContext ctx, double duration)
         {
             this.duration = duration;
-            eventFactory = EventWithoutBorder.Factory(ctx.BackgroundBrush);
+            eventFactory = EmptyEvent.Factory;
         }
 
         public double Duration => duration;

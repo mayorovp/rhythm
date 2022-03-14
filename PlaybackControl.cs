@@ -47,6 +47,7 @@ namespace Rhythm
         public PlaybackControl()
         {
             Config = new ViewModel();
+            DoubleBuffered = true;
         }
 
         private void Reconfigure()
@@ -89,8 +90,7 @@ namespace Rhythm
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            e.Graphics.FillRectangle(drawContext.BackgroundBrush, 0, 0, Width, ybase);
-            e.Graphics.FillRectangle(drawContext.BackgroundBrush, 0, ybase + yheight, Width, Height);
+            e.Graphics.FillRectangle(drawContext.BackgroundBrush, 0, 0, Width, Height);
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -99,21 +99,11 @@ namespace Rhythm
 
             var clipRect = e.ClipRectangle;
 
-            if (clipRect.Left <= xbase + Config.PointerSize && xbase <= clipRect.Right)
-            {
-                e.Graphics.FillRectangle(drawContext.PointerBrush, xbase, 0, Config.PointerSize, Height);
-            }
-
             if (clipRect.Top <= ybase + yheight && ybase <= clipRect.Bottom)
             {
                 var elapsedPx = (int)(elapsedTime / timePerPixel);
                 var time = (elapsedPx - xbase + clipRect.Left) * timePerPixel;
                 var lastEvent = int.MinValue;
-
-                if (elapsedPx < xbase - Config.PointerSize)
-                {
-                    e.Graphics.FillRectangle(drawContext.BackgroundBrush, clipRect.Left, ybase, xbase - elapsedPx - Config.PointerSize, yheight);
-                }
 
                 foreach (var ev in timeModel.GetEvents(0, time))
                 {
@@ -130,22 +120,14 @@ namespace Rhythm
 
                     e.Graphics.SetClip(eventClipRect);
                     ev.Draw(e.Graphics, eventRect);
-                    
-                    if (eventClipRect.Left <= xbase + Config.PointerSize && xbase <= eventClipRect.Right)
-                    {
-                        e.Graphics.FillRectangle(drawContext.PointerBrush, xbase, 0, Config.PointerSize, Height);
-                    }
                 }
 
                 if (lastEvent == int.MinValue)
                     lastEvent = clipRect.Left;
-
-                if (lastEvent <= clipRect.Right)
-                {
-                    e.Graphics.ResetClip();
-                    e.Graphics.FillRectangle(drawContext.BackgroundBrush, lastEvent, ybase, clipRect.Right - lastEvent + 1, yheight);
-                }
             }
+
+            e.Graphics.SetClip(clipRect);
+            e.Graphics.FillRectangle(drawContext.PointerBrush, xbase, 0, Config.PointerSize, Height);
         }
 
         private void Invalidate2() => Invalidate(new Rectangle(0, ybase, Width, yheight));
