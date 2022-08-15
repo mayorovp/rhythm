@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            Rhythm.ViewModel viewModel2 = new Rhythm.ViewModel();
             this.propertyGrid = new System.Windows.Forms.PropertyGrid();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnStop = new System.Windows.Forms.Button();
@@ -76,25 +75,6 @@
             // playback
             // 
             this.playback.BackColor = System.Drawing.Color.White;
-            viewModel2.BackgroundColor = System.Drawing.Color.White;
-            viewModel2.BorderWidth = 3;
-            viewModel2.ComplementaryColor = System.Drawing.Color.Yellow;
-            viewModel2.ExerciseCount = 4;
-            viewModel2.ExerciseFirst = 1;
-            viewModel2.ExerciseInterval = 6;
-            viewModel2.ForegroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
-            viewModel2.Frequency = 76;
-            viewModel2.Length = 8;
-            viewModel2.PointerColor = System.Drawing.Color.Red;
-            viewModel2.PointerSize = 3;
-            viewModel2.SeriesCount = 12;
-            viewModel2.SeriesInterval = 4;
-            viewModel2.StartDelay = 7;
-            viewModel2.TextColor = System.Drawing.Color.Black;
-            viewModel2.TextFont = new System.Drawing.Font("Arial", 14.25F);
-            viewModel2.VisibleRangeAfter = System.TimeSpan.Parse("00:00:15");
-            viewModel2.VisibleRangeBefore = System.TimeSpan.Parse("00:00:02");
-            this.playback.Config = viewModel2;
             this.playback.Dock = System.Windows.Forms.DockStyle.Fill;
             this.playback.ElapsedTime = 0D;
             this.playback.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
