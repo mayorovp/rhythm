@@ -35,6 +35,7 @@ namespace Rhythm
                 stopwatch.Start();
             }
             State = PlaybackState.Started;
+            btnPast10.Focus();
         }
 
         private void btnStop_Click(object sender, System.EventArgs e)
